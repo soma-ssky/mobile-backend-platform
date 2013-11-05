@@ -24,9 +24,18 @@ public class ServerMain extends Verticle {
 
 		RouteMatcher routeMatcher = new RouteMatcher();
 		// routeMatcher.post("/", null);
-		routeMatcher.post("/:version/batch", new PostBatchHandler(eb)); // saveAll
-		routeMatcher.post("/:version/classes/:className", new PostClassHandler(eb)); // save
-		routeMatcher.post("/:version/classes/:className/:objectId", new PostObjectHandler(eb)); // update
+		routeMatcher.post("/:version/batch", new PostBatchHandler(eb));
+		routeMatcher.post("/:version/classes/:className", new PostClassHandler(eb));
+		routeMatcher.post("/:version/classes/:className/:objectId", new PostObjectHandler(eb));
+		
+		routeMatcher.get("/:version/classes/:className/:objectId", null);
+		routeMatcher.put("/:version/classes/:className/:objectId", null);
+		routeMatcher.get("/:version/classes/:className/", null);
+		routeMatcher.delete("/:version/classes/:className/:objectId", null);
+		
+		routeMatcher.post("/:version/files/:fileName", null);
+		
+		
 		routeMatcher.noMatch(new NoMatchHandler());
 
 		vertx.createHttpServer().requestHandler(routeMatcher).listen(PORT);

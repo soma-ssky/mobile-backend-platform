@@ -26,7 +26,14 @@ public class PostBatchHandler implements Handler<HttpServerRequest> {
 			@Override
 			public void handle(Buffer buffer) {
 				JsonObject data = new JsonObject(buffer.toString());
-				handleSaveAll(request, data);
+				switch (((JsonObject) data.getArray("requests").get(0)).getString("method")) {
+				case "POST":
+					handleSaveAll(request, data);
+					break;
+				case "DELETE":
+					handleDeleteAll(request, data);
+					break;
+				}
 			}
 		});
 	}
@@ -56,13 +63,35 @@ public class PostBatchHandler implements Handler<HttpServerRequest> {
 		});
 	}
 
-	private HttpServerResponse setResponseHeaders(HttpServerRequest request, Message<JsonObject> results, int code, String message) {
+	public void handleDeleteAll(final HttpServerRequest request, JsonObject data) {
+		removeInvalidField(data);
+		JsonArray arr = data.getArray("requests");
+		JsonArray orMatcher = new JsonArray();
+		Iterator<Object> itr = arr.iterator();
+		while (itr.hasNext()) {
+			orMatcher.add(new JsonObject().putString("_id", ((JsonObject) itr.next()).getString("path").split("/")[4]));
+		}
+
+		JsonObject deleteAllOption = new JsonObject().putString("action", "delete");
+		deleteAllOption.putString("collection", ((JsonObject) arr.get(0)).getString("path").split("/")[3]);
+		deleteAllOption.putObject("matcher", new JsonObject().putArray("$or", orMatcher)).putString("action", "deleteall");
+		System.out.println(deleteAllOption.encode());
+		eb.send("ssky.object", deleteAllOption, new Handler<Message<JsonObject>>() {
+			@Override
+			public void handle(Message<JsonObject> result) {
+				HttpServerResponse response = setResponseHeaders(request, result, 200, "OK");
+				response.end(result.body().encode());
+			}
+		});
+	}
+
+	private HttpServerResponse setResponseHeaders(HttpServerRequest request, Message<JsonObject> result, int code, String message) {
 		HttpServerResponse response = request.response();
 		response.putHeader("Access-Control-Allow-Origin", "*");
 		response.putHeader("Access-Control-Request-Method", "*");
 		response.putHeader("Content-Type", "application/json; charset=utf-8");
 		response.putHeader("Status", code + " " + message);
-		response.putHeader("Content-Length", "" + results.body().getArray("results").encode().length());
+		response.putHeader("Content-Length", "" + result.body().getArray("results").encode().length());
 		response.setStatusCode(code);
 		response.setStatusMessage(message);
 		return response;

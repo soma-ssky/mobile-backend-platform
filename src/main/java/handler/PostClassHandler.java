@@ -51,6 +51,55 @@ public class PostClassHandler implements Handler<HttpServerRequest> {
 		});
 	}
 
+	public void handleRetrieve(final HttpServerRequest request, String collection, JsonObject data) {
+		JsonObject matcher = data.getObject("where");
+		if (matcher.getString("objectId") != null) {
+			matcher.putString("_id", matcher.getString("objectId"));
+			matcher.removeField("objectId");
+		} else if (matcher.getObject("$relatedTo") != null) {
+			String key = matcher.getObject("$relatedTo").getString("key");
+			JsonObject object = matcher.getObject("$relatedTo").getObject("object");
+			int count = checkCount(data);
+			handleNestedRetrieve(request, key, object, count);
+			return;
+		} else {
+			for (String key : matcher.toMap().keySet()) {
+				try {
+					if (matcher.getObject(key) != null && matcher.getObject(key).getObject("$inQuery") != null) {
+						JsonObject inMatcher = new JsonObject().putObject("where", matcher.getObject(key).getObject("$inQuery").getObject("where"));
+						handleInQueryRetrieve(request, collection, key, inMatcher);
+						return;
+					}
+				} catch (ClassCastException e) {
+					continue;
+				}
+			}
+
+		}
+
+		JsonObject option = new JsonObject();
+		adjustLimit(option, data);
+		adjustOrder(option, data);
+
+		JsonObject retrieveOption = new JsonObject().putString("collection", collection);
+		retrieveOption.putObject("matcher", matcher).putObject("option", option);
+		if (checkCount(data) == 0) retrieveOption.putString("action", "retrieve");
+		else retrieveOption.putString("action", "count");
+		eb.send("ssky.object", retrieveOption, new Handler<Message<JsonObject>>() {
+			@Override
+			public void handle(Message<JsonObject> result) {
+				if (result.body().getString("status") != null && result.body().getString("status").equals("error")) {
+					request.response().end(result.body().encode());
+					return;
+				}
+
+				HttpServerResponse response = setResponseHeaders(request, null, result, 200, "OK");
+				response.end(result.body().encode());
+			}
+		});
+
+	}
+
 	private void handleNestedRetrieve(final HttpServerRequest request, final String key, JsonObject object, final int count) {
 		final String collection = object.getString("className");
 		String objectId = object.getString("objectId");
@@ -79,7 +128,6 @@ public class PostClassHandler implements Handler<HttpServerRequest> {
 		eb.send("ssky.object", option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
-				System.out.println(result.body().encode());
 				JsonArray orMatcher = new JsonArray();
 				JsonArray arr = result.body().getArray("results");
 				Iterator<Object> itr = arr.iterator();
@@ -87,59 +135,9 @@ public class PostClassHandler implements Handler<HttpServerRequest> {
 					orMatcher.add(new JsonObject().putString("_id", ((JsonObject) itr.next()).getString("objectId")));
 				}
 				JsonObject data = new JsonObject().putObject("where", new JsonObject().putArray("$or", orMatcher).mergeIn(inMatcher.getObject("where")));
-				System.out.println("\t\t\t" + data);
 				handleRetrieve(request, collection, data);
 			}
 		});
-	}
-
-	public void handleRetrieve(final HttpServerRequest request, String collection, JsonObject data) {
-		JsonObject matcher = data.getObject("where");
-		if (matcher.getString("objectId") != null) {
-			matcher.putString("_id", matcher.getString("objectId"));
-			matcher.removeField("objectId");
-		} else if (matcher.getObject("$relatedTo") != null) {
-			String key = matcher.getObject("$relatedTo").getString("key");
-			JsonObject object = matcher.getObject("$relatedTo").getObject("object");
-			int count = checkCount(data);
-			handleNestedRetrieve(request, key, object, count);
-			return;
-		} else {
-			for (String key : matcher.toMap().keySet()) {
-				try {
-					if (matcher.getObject(key) != null && matcher.getObject(key).getObject("$inQuery") != null) {
-						JsonObject inMatcher = new JsonObject().putObject("where", matcher.getObject(key).getObject("$inQuery").getObject("where"));
-						handleInQueryRetrieve(request, collection, key, inMatcher);
-						return;
-					}
-				} catch (ClassCastException e) {
-					continue;
-				}
-			}
-
-		}
-
-		JsonObject option = new JsonObject();
-		processLimit(option, data);
-		processOrder(option, data);
-
-		JsonObject retrieveOption = new JsonObject().putString("collection", collection);
-		retrieveOption.putObject("matcher", matcher).putObject("option", option);
-		if (checkCount(data) == 0) retrieveOption.putString("action", "retrieve");
-		else retrieveOption.putString("action", "count");
-		eb.send("ssky.object", retrieveOption, new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> result) {
-				if (result.body().getString("status") != null && result.body().getString("status").equals("error")) {
-					request.response().end(result.body().encode());
-					return;
-				}
-
-				HttpServerResponse response = setResponseHeaders(request, null, result, 200, "OK");
-				response.end(result.body().encode());
-			}
-		});
-
 	}
 
 	private int checkCount(JsonObject data) {
@@ -147,7 +145,7 @@ public class PostClassHandler implements Handler<HttpServerRequest> {
 		return 0;
 	}
 
-	private JsonObject processOrder(JsonObject data, JsonObject option) {
+	private JsonObject adjustOrder(JsonObject data, JsonObject option) {
 		if (data.getString("order") != null) {
 			String key;
 			int index;
@@ -163,7 +161,7 @@ public class PostClassHandler implements Handler<HttpServerRequest> {
 		return option;
 	}
 
-	private JsonObject processLimit(JsonObject option, JsonObject data) {
+	private JsonObject adjustLimit(JsonObject option, JsonObject data) {
 		if (data.getNumber("limit") != null && !data.getNumber("limit").equals(0)) {
 			option.putNumber("limit", data.getNumber("limit"));
 		}
