@@ -35,7 +35,7 @@ public class ObjectHandler {
 		} else {
 			String _method = new JsonObject(buffer.toString()).getString("_method");
 			if (_method == null) {
-				saveObject(request, request.path().split("/")[3], data);
+				// saveObject(request, request.path().split("/")[3], data);
 				return true;
 			} else if (_method.equals("GET") && request.path().split("/").length == 5) {
 				fetchObject(request, request.path().split("/")[3], request.path().split("/")[4]);
@@ -53,65 +53,8 @@ public class ObjectHandler {
 	}
 
 	private void saveAllObject(final HttpServerRequest request, JsonObject data) {
-		final String current = getCurrentTimeInString();
-		JsonArray array = data.getArray("requests");
-		String className = ((JsonObject) array.get(0)).getString("path").split("/")[3];
-		Iterator<Object> itr = array.iterator();
-		JsonArray savedArray = new JsonArray();
-		while (itr.hasNext()) {
-			JsonObject body = ((JsonObject) itr.next()).getObject("body");
-			body.putString("updatedAt", current).putString("createdAt", current);
-			savedArray.addObject(body);
-		}
-		eb.send("vertx.mongo", MongoUtil.saveAllConfig(className, savedArray.encode()), new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> result) {
-				if (result.body().getString("status").equals("error")) {
-					request.response().end(result.body().getObject("message").encode());
-					return;
-				}
-				System.out.println(result.body().encode());
-				JsonArray replies = new JsonArray();
-				Iterator<Object> itr = result.body().getArray("results").iterator();
-				while (itr.hasNext()) {
-					JsonObject reply = new JsonObject();
-					reply.putString("objectId", ((JsonObject) itr.next()).getString("_id"));
-					reply.putString("createdAt", current);
-					replies.add(new JsonObject().putObject("success", reply));
-				}
-
-				HttpServerResponse response = request.response();
-				response = putHeaders(response, replies.encode().length(), 200, "OK");
-				response.end(replies.encode());
-			}
-		});
 	}
 
-	private void saveObject(final HttpServerRequest request, final String className, JsonObject data) {
-		final String current = getCurrentTimeInString();
-		data.putString("updatedAt", current).putString("createdAt", current);
-		data.removeField("_ApplicationId");
-		data.removeField("_ClientVersion");
-		data.removeField("_InstallationId");
-		data.removeField("_JavaScriptKey");
-		eb.send("vertx.mongo", MongoUtil.saveConfig(className, data), new Handler<Message<JsonObject>>() {
-			@Override
-			public void handle(Message<JsonObject> result) {
-				if (result.body().getString("status").equals("error")) {
-					request.response().end(result.body().getObject("message").encode());
-					return;
-				}
-				JsonObject reply = new JsonObject();
-				reply.putString("objectId", result.body().getString("_id"));
-				reply.putString("createdAt", current);
-
-				HttpServerResponse response = request.response();
-				response = putHeaders(response, reply.encode().length(), 201, "Created");
-				response.putHeader("Location", request.headers().get("Host") + "/" + className + "/" + result.body().getString("_id"));
-				response.end(reply.encode());
-			}
-		});
-	}
 
 	private void fetchObject(final HttpServerRequest request, final String className, String objectId) {
 		eb.send("vertx.mongo", MongoUtil.findOneConfig(className, new JsonObject().putString("_id", objectId), null), new Handler<Message<JsonObject>>() {
