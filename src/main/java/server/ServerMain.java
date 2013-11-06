@@ -1,9 +1,11 @@
 package main.java.server;
 
 import main.java.handler.NoMatchHandler;
-import main.java.handler.PostObjectHandler;
-import main.java.handler.PostBatchHandler;
-import main.java.handler.PostClassHandler;
+import main.java.handler.client.BatchHandler;
+import main.java.handler.client.ClassHandler;
+import main.java.handler.client.ObjectHandler;
+import main.java.handler.rest.GetHandler;
+import main.java.handler.rest.PutHandler;
 
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.http.RouteMatcher;
@@ -23,19 +25,22 @@ public class ServerMain extends Verticle {
 		container.deployModule(SSKY_OBJECT_MODULE_NAME, objectConfig());
 
 		RouteMatcher routeMatcher = new RouteMatcher();
-		// routeMatcher.post("/", null);
-		routeMatcher.post("/:version/batch", new PostBatchHandler(eb));
-		routeMatcher.post("/:version/classes/:className", new PostClassHandler(eb));
-		routeMatcher.post("/:version/classes/:className/:objectId", new PostObjectHandler(eb));
-		
-		routeMatcher.get("/:version/classes/:className/:objectId", null);
-		routeMatcher.put("/:version/classes/:className/:objectId", null);
+
+		// parse post
+		routeMatcher.post("/:version/batch", new BatchHandler(eb));
+		routeMatcher.post("/:version/classes/:className", new ClassHandler(eb));
+		routeMatcher.post("/:version/classes/:className/:objectId", new ObjectHandler(eb));
+
+		// parse object and query rest api
+		routeMatcher.get("/:version/classes/:className/:objectId", new GetHandler(eb));
+		routeMatcher.put("/:version/classes/:className/:objectId", new PutHandler(eb));
 		routeMatcher.get("/:version/classes/:className/", null);
 		routeMatcher.delete("/:version/classes/:className/:objectId", null);
-		
+
+		// parse file rest api
 		routeMatcher.post("/:version/files/:fileName", null);
-		
-		
+
+		// no match
 		routeMatcher.noMatch(new NoMatchHandler());
 
 		vertx.createHttpServer().requestHandler(routeMatcher).listen(PORT);
@@ -53,5 +58,4 @@ public class ServerMain extends Verticle {
 		objectConfig.putString("this_address", "ssky.object").putString("db_address", "vertx.mongo");
 		return objectConfig;
 	}
-
 }

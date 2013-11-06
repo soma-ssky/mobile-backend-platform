@@ -1,0 +1,140 @@
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>My Parse App</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="./parse-1.2.12.js"></script>
+</head>
+
+<body>
+	<script type="text/javascript">
+		Parse.initialize("YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x", "DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5");
+		Parse.serverURL = "https://api.parse.com";
+		Parse.serverURL = "http://127.0.0.1";
+
+		// test to save and destroy object
+		var Color = Parse.Object.extend("Color");
+		var color = new Color();
+		color.set("color", "red");
+		color.save(null, {
+			success : function(object) {
+				console.log("save test : object id is " + object.id);
+				object.destroy({
+					success : function(object) {
+						console.log("delete test : successed.");
+					}
+				});
+			}
+		});
+
+		// test to save all and destroy all object
+		var colorArr = new Array();
+		var colors = new Array("black", "white", "red", "cyan", "gray", "dark gray", "light gray", "yellow", "brown", "green");
+		for ( var i = 0; i < 10; i++) {
+			colorArr[i] = new Color();
+			colorArr[i].set("color", colors[i]);
+			colorArr[i].set("key", i * i);
+		}
+		Parse.Object.saveAll(colorArr, {
+			success : function(objects) {
+				console.log("save all test : saved objects length is " + objects.length);
+				Parse.Object.destroyAll(objects, {
+					success : function() {
+						console.log("delete all test : successed.");
+					}
+				});
+			}
+		});
+
+		// test to fetch 
+		var color = new Color();
+		color.set("color", "red");
+		color.set("key", 1);
+		color.save(null, {
+			success : function(object) {
+				object.fetch({
+					success : function(fetchedObject) {
+						console.log("original object id is " + object.id + "\nand fetched object id is " + fetchedObject.id);
+						fetchedObject.destroy();
+					}
+				});
+			}
+		});
+
+		// test to fetch nested object and inner query
+		var Manager = Parse.Object.extend("Manager");
+		var manager = new Manager();
+		manager.set("name", "taehoon");
+
+		var color = new Color();
+		color.set("color", "blue");
+		color.set("key", 55);
+		color.set("managed", manager);
+
+		color.save(null, {
+			success : function(object) {
+				var manager = object.get("managed");
+				manager.fetch({
+					success : function(manager) {
+						console.log(color.get("color") + " is managed " + manager.get("name"));
+					}
+				});
+				
+				var innerQuery = new Parse.Query(Manager);
+				innerQuery.equalTo("name", "taehoon");
+				var query = new Parse.Query(Color);
+				query.matchesQuery("managed", innerQuery);
+				query.find({
+					success:function(list){
+						console.log(list.length);
+					}
+				});
+			}
+		});
+		
+		
+
+		// test to relation
+		manager = new Manager();
+		manager.set("name", "taehoon");
+
+		var color1 = new Color();
+		var color2 = new Color();
+		color1.set("color", "gray");
+		color1.set("key", 100);
+		color2.set("color", "cyan");
+		color2.set("key", 403);
+
+		Parse.Object.saveAll([ color1, color2 ], {
+			success : function(colors) {
+				manager.save(null, {
+					success : function(manager) {
+						var manageRelation = manager.relation("manage");
+						manageRelation.add(color1);
+						manageRelation.add(color2);
+
+						manager.save(null, {
+							success : function(manager) {
+								manageRelation.query().find({
+									success : function(list) {
+										console.log(manager.get("name") + " manages " + list[0].get("color") + " and " + list[1].get("color") + ".");
+									}
+								});
+								manageRelation.query().count({
+									success : function(number) {
+										console.log(manager.get("name") + " manages " + number + " colors.");
+									}
+								});
+							}
+						});
+					}
+				});
+			}
+		});
+
+
+	</script>
+</body>
+
+</html>
