@@ -4,7 +4,7 @@
 ##REST API##
 
 | address | method | function |
-|--|::||
+|---|:---:|---|
 | /(version)/classes/(className) | POST | Creating Objects  | 
 | /(version)/classes/(className)/(objectId) | GET | Retrieving(Fetching) Objects
 | /(version)/classes/(className)/(objectId) | PUT | Updating Objects
