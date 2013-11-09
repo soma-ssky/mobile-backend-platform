@@ -2,21 +2,17 @@ package main.java.handler.client;
 
 import java.util.Iterator;
 
+import main.java.server.ServerMain;
+import main.java.util.Util;
+
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 
 public class ClassHandler implements Handler<HttpServerRequest> {
-	private EventBus eb;
-
-	public ClassHandler(EventBus eb) {
-		this.eb = eb;
-	}
 
 	@Override
 	public void handle(final HttpServerRequest request) {
@@ -26,7 +22,7 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 				String collection = request.path().split("/")[3];
 				JsonObject data = new JsonObject(buffer.toString());
 				String method = data.getString("_method");
-				removeInvalidField(data);
+				Util.removeInvalidField(data);
 				if (method == null) {
 					handleSave(request, data, collection);
 				} else if (method.equals("GET")) {
@@ -38,15 +34,15 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 	}
 
 	public void handleSave(final HttpServerRequest request, JsonObject data, final String collection) {
-		eb.send("ssky.object", new JsonObject().putString("action", "save").putString("collection", collection).putObject("data", data), new Handler<Message<JsonObject>>() {
+		ServerMain.eb.send(Util.OBJECT_MANAGER_ADDRESS, new JsonObject().putString("action", "save").putString("collection", collection).putObject("data", data), new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
 				if (result.body().getString("status") != null && result.body().getString("status").equals("error")) {
 					request.response().end(result.body().encode());
 					return;
 				}
-				HttpServerResponse response = setResponseHeaders(request, collection, result, 201, "Created");
-				response.end(result.body().encode());
+				request.response().putHeader("Location", request.headers().get("Host") + "/" + Util.VERSION + "/classes/" + collection + "/" + result.body().getString("objectId"));
+				Util.response(request, result.body().encode(), 201);
 			}
 		});
 	}
@@ -84,16 +80,14 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 		retrieveOption.putObject("matcher", matcher).putObject("option", option);
 		if (checkCount(data) == 0) retrieveOption.putString("action", "retrieve");
 		else retrieveOption.putString("action", "count");
-		eb.send("ssky.object", retrieveOption, new Handler<Message<JsonObject>>() {
+		ServerMain.eb.send(Util.OBJECT_MANAGER_ADDRESS, retrieveOption, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
 				if (result.body().getString("status") != null && result.body().getString("status").equals("error")) {
 					request.response().end(result.body().encode());
 					return;
 				}
-
-				HttpServerResponse response = setResponseHeaders(request, null, result, 200, "OK");
-				response.end(result.body().encode());
+				Util.response(request, result.body().encode(), 200);
 			}
 		});
 
@@ -104,7 +98,7 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 		String objectId = object.getString("objectId");
 		JsonObject relatedOption = new JsonObject();
 		relatedOption.putString("action", "fetch").putString("collection", collection).putObject("matcher", new JsonObject().putString("_id", objectId));
-		eb.send("ssky.object", relatedOption, new Handler<Message<JsonObject>>() {
+		ServerMain.eb.send(Util.OBJECT_MANAGER_ADDRESS, relatedOption, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
 				JsonArray orMatcher = new JsonArray();
@@ -124,7 +118,7 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 		JsonObject option = new JsonObject();
 		option.putObject("matcher", new JsonObject().putObject(key, new JsonObject().putBoolean("$exists", true)));
 		option.putString("collection", collection).putString("action", "retrieve");
-		eb.send("ssky.object", option, new Handler<Message<JsonObject>>() {
+		ServerMain.eb.send(Util.OBJECT_MANAGER_ADDRESS, option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
 				JsonArray orMatcher = new JsonArray();
@@ -135,9 +129,8 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 				}
 				JsonObject data = new JsonObject().putObject("where", new JsonObject().putArray("$or", orMatcher).mergeIn(inMatcher.getObject("where")));
 				System.out.println(data.encode());
-				//handleRetrieve(request, data, collection);
-				HttpServerResponse response = setResponseHeaders(request, null, result, 200, "OK");
-				response.end(result.body().encode());	
+				// handleRetrieve(request, data, collection);
+				Util.response(request, result.body().encode(), 200);
 			}
 		});
 	}
@@ -168,29 +161,6 @@ public class ClassHandler implements Handler<HttpServerRequest> {
 			option.putNumber("limit", data.getNumber("limit"));
 		}
 		return option;
-	}
-
-	private HttpServerResponse setResponseHeaders(HttpServerRequest request, String collection, Message<JsonObject> result, int code, String message) {
-		HttpServerResponse response = request.response();
-		response.putHeader("Access-Control-Allow-Origin", "*");
-		response.putHeader("Access-Control-Request-Method", "*");
-		response.putHeader("Content-Type", "application/json; charset=utf-8");
-		response.putHeader("Status", code + " " + message);
-		response.putHeader("Content-Length", "" + result.body().encode().length());
-		response.setStatusCode(code);
-		response.setStatusMessage(message);
-		if (collection != null) {
-			response.putHeader("Location", request.headers().get("Host") + "/1/classes/" + collection + "/" + result.body().getString("objectId"));
-		}
-		return response;
-	}
-
-	private void removeInvalidField(JsonObject data) {
-		data.removeField("_ApplicationId");
-		data.removeField("_ClientVersion");
-		data.removeField("_InstallationId");
-		data.removeField("_JavaScriptKey");
-		data.removeField("_method");
 	}
 
 }

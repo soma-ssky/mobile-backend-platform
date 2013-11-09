@@ -1,19 +1,8 @@
 package expired.object.request;
 
-import java.util.Iterator;
-
-import main.java.util.MongoUtil;
-
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
 
 public class ObjectQueryHandler {
+	/*
 	private EventBus eb;
 	private HttpServerRequest request;
 
@@ -177,5 +166,5 @@ public class ObjectQueryHandler {
 		response.setStatusMessage(statusMessage);
 		return response;
 	}
-
+*/
 }

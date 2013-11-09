@@ -11,7 +11,39 @@
 	<script type="text/javascript">
 		Parse.initialize("YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x", "DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5");
 		Parse.serverURL = "https://api.parse.com";
-		Parse.serverURL = "http://127.0.0.1";
+		//Parse.serverURL = "http://127.0.0.1";
+
+		// signup request
+		// {"username":"myname123","password":"mypass","email":"1e1mail13@example.com","phone":"415-392-0202",
+		//	"_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x","_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5",
+		//  "_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b","_SessionToken":"oy32nf4ezanlgz23fygkascl3"}
+		
+		// signup response
+		// {"createdAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
+
+		// sign in request
+		// {"username":"myname123","password":"mypass","_method":"GET","_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x",
+		// "_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5","_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b",
+		// "_SessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
+		
+		// sign in response
+		// {"username":"myname123","email":"1e1mail13@example.com","phone":"415-392-0202","createdAt":"2013-11-09T11:39:53.412Z",
+		//	"updatedAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
+		
+		var user = new Parse.User();
+		user.set("username", "myname123");
+		user.set("password", "mypass");
+		user.set("email", "1e1mail13@example.com");
+		user.set("phone", "415-392-0202");
+		user.signUp(null, {
+			success : function(user) {
+				Parse.User.logIn("myname123", "mypass", {
+					success : function(user) {
+						// Do stuff after successful login.
+					}
+				});
+			}
+		});
 
 		// test to save and destroy object
 		var Color = Parse.Object.extend("Color");
@@ -80,20 +112,18 @@
 						console.log(color.get("color") + " is managed " + manager.get("name"));
 					}
 				});
-				
+
 				var innerQuery = new Parse.Query(Manager);
 				innerQuery.equalTo("name", "taehoon");
 				var query = new Parse.Query(Color);
 				query.matchesQuery("managed", innerQuery);
 				query.find({
-					success:function(list){
+					success : function(list) {
 						console.log(list.length);
 					}
 				});
 			}
 		});
-		
-		
 
 		// test to relation
 		manager = new Manager();
@@ -132,8 +162,6 @@
 				});
 			}
 		});
-
-
 	</script>
 </body>
 

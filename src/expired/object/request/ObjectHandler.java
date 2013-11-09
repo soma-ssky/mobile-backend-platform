@@ -1,20 +1,8 @@
 package expired.object.request;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
-
-import main.java.util.MongoUtil;
-
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
-import org.vertx.java.core.http.HttpServerResponse;
-import org.vertx.java.core.json.JsonObject;
 
 public class ObjectHandler {
+/*	
 	private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";// "EEE MMM dd HH:mm:ss zz yyyy";
 	private EventBus eb;
 	private HttpServerRequest request;
@@ -142,5 +130,5 @@ public class ObjectHandler {
 	private String getCurrentTimeInString() {
 		return new SimpleDateFormat(DATE_FORMAT).format(new Date()).toString();
 	}
-
+*/
 }
