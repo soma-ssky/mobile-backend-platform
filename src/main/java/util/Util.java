@@ -1,29 +1,30 @@
 package main.java.util;
 
+import main.java.handler.FileUploadHandler;
 import main.java.handler.NoMatchHandler;
-import main.java.handler.client.BatchHandler;
-import main.java.handler.client.ClassHandler;
-import main.java.handler.client.ObjectHandler;
-import main.java.handler.rest.DeleteHandler;
-import main.java.handler.rest.GetClassHandler;
-import main.java.handler.rest.GetObjectHandler;
-import main.java.handler.rest.PutHandler;
-import main.java.role.RoleCreateHandler;
-import main.java.role.RoleDeleteHandler;
-import main.java.role.RoleQueryHandler;
-import main.java.role.RoleRetrieveHandler;
-import main.java.role.RoleUpdateHandler;
+import main.java.handler.RouteMatchManager;
+import main.java.handler.object.BatchingObjectOption;
+import main.java.handler.object.ClassHandler;
+import main.java.handler.object.ClientObjectOption;
+import main.java.handler.object.DeletingObjectOption;
+import main.java.handler.object.QueryingObjectOption;
+import main.java.handler.object.RetrievingObjectOption;
+import main.java.handler.object.UpdatingObjectOption;
+import main.java.handler.user.LoginOption;
+import main.java.handler.user.SigningOutOption;
+import main.java.handler.user.SigningupOption;
+import main.java.handler.user.UserQueryOption;
+import main.java.handler.user.UserRetrieveOption;
+import main.java.handler.user.UserUpdateOption;
+import main.java.role.CreatingRoleOption;
+import main.java.role.DeletingRoleOption;
+import main.java.role.QueryingRoleOptiong;
+import main.java.role.RetrievingRoleOption;
+import main.java.role.UpdatingRoleOptiong;
 import main.java.server.ServerMain;
-import main.java.user.LoginHandler;
-import main.java.user.PasswordResetHandler;
-import main.java.user.SigningOutHandler;
-import main.java.user.SigningUpHandler;
-import main.java.user.TokenHandler;
-import main.java.user.UserQueryHandler;
-import main.java.user.UserRetrieveHandler;
-import main.java.user.UserUpdateHandler;
 
 import org.vertx.java.core.Handler;
+import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
@@ -31,52 +32,65 @@ import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 
 public class Util {
-	private static RouteMatcher routeMatcher = null;
 	public static final String MONGO_PERSISTOR_ADDRESS = "vertx.mongo.persistor";
 	public static final String OBJECT_MANAGER_ADDRESS = "ssky.object.manager";
 	public static final String AUTH_MANAGER_ADDRESS = "ssky.auth.manager";
+	public static final String MONGO_GRIDFS_ADDRESS = "ssky.gridfs.manager";
+	public static final String ROLE_MANAGER_ADDRESS = "ssky.role.manager";
 	public static final String VERSION = "1";
 
+	public static final String UPLOAD_DIR = "./uploads/";
+
+	private static RouteMatchManager manager = null;
+
 	public static RouteMatcher getRouteMatcher() {
-		if (routeMatcher == null) {
-			routeMatcher = new RouteMatcher();
+		if (manager == null) {
+			manager = RouteMatchManager.getInstance();
+			// post
+			// manager.addPost("/:version/classes/:className", new CreatingObjectAndClientClassOption());
+			manager.addPost("/:version/classes/:className/:objectId", new ClientObjectOption());
+			manager.addPost("/:version/batch", new BatchingObjectOption());
+
+			// get
+			manager.addGet("/:version/classes/:className/:objectId", new RetrievingObjectOption());
+			manager.addGet("/:version/classes/:className", new QueryingObjectOption());
+
+			// put
+			manager.addPut("/:version/classes/:className/:objectId", new UpdatingObjectOption());
+
+			// delete
+			manager.addDelete("/:version/classes/:className/:objectId", new DeletingObjectOption());
 
 			// no match
-			routeMatcher.noMatch(new NoMatchHandler());
+			manager.addNoMatch(new NoMatchHandler());
 
-			// client rest
-			routeMatcher.post("/:version/batch", new BatchHandler());
-			routeMatcher.post("/:version/classes/:className", new ClassHandler());
-			routeMatcher.post("/:version/classes/:className/:objectId", new ObjectHandler());
-
-			// parse object and query rest api
-			routeMatcher.get("/:version/classes/:className/:objectId", new GetObjectHandler());
-			routeMatcher.get("/:version/classes/:className/", new GetClassHandler());
-			routeMatcher.put("/:version/classes/:className/:objectId", new PutHandler());
-			routeMatcher.delete("/:version/classes/:className/:objectId", new DeleteHandler());
-
-			// parse file rest api
-			routeMatcher.post("/:version/files/:fileName", null);
+			manager.addPostHandler("/:version/classes/:className", new ClassHandler());
+			manager.addPostHandler("/:version/files/:fileName", new FileUploadHandler());
 
 			// user rest
-			routeMatcher.post("/:version/users", new SigningUpHandler());
-			routeMatcher.post("/:version/requestPasswordRest", new PasswordResetHandler());
-			routeMatcher.get("/:version/login", new LoginHandler());
-			routeMatcher.get("/:version/users/:objectId", new UserRetrieveHandler());
-			routeMatcher.get("/:version/users/me", new TokenHandler());
-			routeMatcher.get("/:version/users", new UserQueryHandler());
-			routeMatcher.put("/:version/users/:objectId", new UserUpdateHandler());
-			routeMatcher.delete("/:version/users/:objectId", new SigningOutHandler());
+			manager.addPost("/:version/users", new SigningupOption());
+			manager.addGet("/:version/login", new LoginOption());
+			manager.addGet("/:version/users/:objectId", new UserRetrieveOption());
+			manager.addGet("/:version/users", new UserQueryOption());
+			manager.addPut("/:version/users/:objectId", new UserUpdateOption());
+			manager.addDelete("/:version/users/:objectId", new SigningOutOption());
 
 			// role rest
-			routeMatcher.post("/:version/roles", new RoleCreateHandler());
-			routeMatcher.get("/:version/roles", new RoleRetrieveHandler());
-			routeMatcher.put("/:version/roles", new RoleUpdateHandler());
-			routeMatcher.get("/:version/roles", new RoleQueryHandler());
-			routeMatcher.delete("/:version/roles", new RoleDeleteHandler());
-		}
+			manager.addPost("/:version/roles", new CreatingRoleOption());
+			manager.addGet("/:version/roles/:objectId", new RetrievingRoleOption());
+			manager.addPut("/:version/roles/:objectId", new UpdatingRoleOptiong());
+			manager.addGet("/:version/roles", new QueryingRoleOptiong());
+			manager.addDelete("/:version/roles", new DeletingRoleOption());
 
-		return routeMatcher;
+		}
+		return manager.getRouteMatcher();
+
+		// if (routeMatcher == null) {
+		// routeMatcher = new RouteMatcher();
+		//
+		//
+		// }
+
 	}
 
 	public static void response(HttpServerRequest request, String reply, int code) {
@@ -87,14 +101,14 @@ public class Util {
 		response.putHeader("Status", code + " " + statusMessageByCode(code));
 		response.putHeader("Content-Length", "" + reply.length());
 		if (code == 201) {
-			//response.putHeader("Location", request.headers().get("Host") + "/" + collection + "/" + result.body().getString("objectId"));
+			// response.putHeader("Location", address);
 		}
 		response.setStatusCode(code);
 		response.setStatusMessage(statusMessageByCode(code));
 		response.end(reply);
 	}
 
-	public static void processObjectRequestViaEB(final HttpServerRequest request, String address, JsonObject option, final int code) {
+	public static void processObjectRequestViaEB(final HttpServerRequest request, final String address, JsonObject option, final int code) {
 		ServerMain.eb.send(address, option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
@@ -207,6 +221,15 @@ public class Util {
 	public static JsonObject countObjectOptionById(String collection, String objectId) {
 		JsonObject matcher = new JsonObject().putObject("matcher", new JsonObject().putString("_id", objectId));
 		return countObjectOption(collection, matcher);
+	}
+
+	public static JsonObject convertParamsToJsonObject(MultiMap params) {
+		JsonObject document = new JsonObject();
+		for (String name : params.names()) {
+			document.putString(name, params.get(name));
+		}
+		return document;
+
 	}
 
 }

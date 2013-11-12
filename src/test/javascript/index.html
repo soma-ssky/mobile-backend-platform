@@ -8,160 +8,196 @@
 </head>
 
 <body>
+	<input type="file" id="profilePhotoFileUpload">
+	
 	<script type="text/javascript">
 		Parse.initialize("YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x", "DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5");
 		Parse.serverURL = "https://api.parse.com";
-		//Parse.serverURL = "http://127.0.0.1";
-
-		// signup request
-		// {"username":"myname123","password":"mypass","email":"1e1mail13@example.com","phone":"415-392-0202",
-		//	"_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x","_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5",
-		//  "_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b","_SessionToken":"oy32nf4ezanlgz23fygkascl3"}
+		Parse.serverURL = "http://127.0.0.1";
 		
-		// signup response
-		// {"createdAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
-
-		// sign in request
-		// {"username":"myname123","password":"mypass","_method":"GET","_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x",
-		// "_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5","_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b",
-		// "_SessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
-		
-		// sign in response
-		// {"username":"myname123","email":"1e1mail13@example.com","phone":"415-392-0202","createdAt":"2013-11-09T11:39:53.412Z",
-		//	"updatedAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
 		
 		var user = new Parse.User();
-		user.set("username", "myname123");
-		user.set("password", "mypass");
-		user.set("email", "1e1mail13@example.com");
+		user.set("username", "dd");
+		user.set("password", "my pass");
+		user.set("email", "email1@exadfad3mple.com");
+		 
+		// other fields can be set just like with Parse.Object
 		user.set("phone", "415-392-0202");
+		 
 		user.signUp(null, {
-			success : function(user) {
-				Parse.User.logIn("myname123", "mypass", {
-					success : function(user) {
-						// Do stuff after successful login.
-					}
-				});
-			}
+		  success: function(user) {
+		    // Hooray! Let them use the app now.
+		  },
+		  error: function(user, error) {
+		    // Show the error message somewhere and let the user try again.
+		    alert("Error: " + error.code + " " + error.message);
+		  }
 		});
 
-		// test to save and destroy object
-		var Color = Parse.Object.extend("Color");
-		var color = new Color();
-		color.set("color", "red");
-		color.save(null, {
-			success : function(object) {
-				console.log("save test : object id is " + object.id);
-				object.destroy({
-					success : function(object) {
-						console.log("delete test : successed.");
-					}
-				});
-			}
-		});
+		
+		
+		
+		var fileUploadControl = $("#profilePhotoFileUpload")[0];
+		if (fileUploadControl.files.length > 0) {
+			var file = fileUploadControl.files[0];
+			var name = "photo.pdf";
 
-		// test to save all and destroy all object
-		var colorArr = new Array();
-		var colors = new Array("black", "white", "red", "cyan", "gray", "dark gray", "light gray", "yellow", "brown", "green");
-		for ( var i = 0; i < 10; i++) {
-			colorArr[i] = new Color();
-			colorArr[i].set("color", colors[i]);
-			colorArr[i].set("key", i * i);
+			var parseFile = new Parse.File(name, file);
+			parseFile.save().then(function() {
+				console.log("saved file.");
+			});
 		}
-		Parse.Object.saveAll(colorArr, {
-			success : function(objects) {
-				console.log("save all test : saved objects length is " + objects.length);
-				Parse.Object.destroyAll(objects, {
-					success : function() {
-						console.log("delete all test : successed.");
-					}
-				});
-			}
-		});
 
-		// test to fetch 
-		var color = new Color();
-		color.set("color", "red");
-		color.set("key", 1);
-		color.save(null, {
-			success : function(object) {
-				object.fetch({
-					success : function(fetchedObject) {
-						console.log("original object id is " + object.id + "\nand fetched object id is " + fetchedObject.id);
-						fetchedObject.destroy();
-					}
-				});
-			}
-		});
+		/*
+		 // signup request
+		 // {"username":"myname123","password":"mypass","email":"1e1mail13@example.com","phone":"415-392-0202",
+		 //	"_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x","_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5",
+		 //  "_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b","_SessionToken":"oy32nf4ezanlgz23fygkascl3"}
 
-		// test to fetch nested object and inner query
-		var Manager = Parse.Object.extend("Manager");
-		var manager = new Manager();
-		manager.set("name", "taehoon");
+		 // signup response
+		 // {"createdAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
 
-		var color = new Color();
-		color.set("color", "blue");
-		color.set("key", 55);
-		color.set("managed", manager);
+		 // sign in request
+		 // {"username":"myname123","password":"mypass","_method":"GET","_ApplicationId":"YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x",
+		 // "_JavaScriptKey":"DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5","_ClientVersion":"js1.2.12","_InstallationId":"1481b91a-be46-1ebc-48d3-1016a9b66f7b",
+		 // "_SessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
 
-		color.save(null, {
-			success : function(object) {
-				var manager = object.get("managed");
-				manager.fetch({
-					success : function(manager) {
-						console.log(color.get("color") + " is managed " + manager.get("name"));
-					}
-				});
+		 // sign in response
+		 // {"username":"myname123","email":"1e1mail13@example.com","phone":"415-392-0202","createdAt":"2013-11-09T11:39:53.412Z",
+		 //	"updatedAt":"2013-11-09T11:39:53.412Z","objectId":"HZDRpl28k6","sessionToken":"d0e4f1q60g0y0nnlpivdjr1fk"}
 
-				var innerQuery = new Parse.Query(Manager);
-				innerQuery.equalTo("name", "taehoon");
-				var query = new Parse.Query(Color);
-				query.matchesQuery("managed", innerQuery);
-				query.find({
-					success : function(list) {
-						console.log(list.length);
-					}
-				});
-			}
-		});
+		 var user = new Parse.User();
+		 user.set("username", "myname123");
+		 user.set("password", "mypass");
+		 user.set("email", "1e1mail13@example.com");
+		 user.set("phone", "415-392-0202");
+		 user.signUp(null, {
+		 success : function(user) {
+		 Parse.User.logIn("myname123", "mypass", {
+		 success : function(user) {
+		 // Do stuff after successful login.
+		 }
+		 });
+		 }
+		 });
 
-		// test to relation
-		manager = new Manager();
-		manager.set("name", "taehoon");
+		 // test to save and destroy object
+		 var Color = Parse.Object.extend("Color");
+		 var color = new Color();
+		 color.set("color", "red");
+		 color.save(null, {
+		 success : function(object) {
+		 console.log("save test : object id is " + object.id);
+		 object.destroy({
+		 success : function(object) {
+		 console.log("delete test : successed.");
+		 }
+		 });
+		 }
+		 });
 
-		var color1 = new Color();
-		var color2 = new Color();
-		color1.set("color", "gray");
-		color1.set("key", 100);
-		color2.set("color", "cyan");
-		color2.set("key", 403);
+		 // test to save all and destroy all object
+		 var colorArr = new Array();
+		 var colors = new Array("black", "white", "red", "cyan", "gray", "dark gray", "light gray", "yellow", "brown", "green");
+		 for ( var i = 0; i < 10; i++) {
+		 colorArr[i] = new Color();
+		 colorArr[i].set("color", colors[i]);
+		 colorArr[i].set("key", i * i);
+		 }
+		 Parse.Object.saveAll(colorArr, {
+		 success : function(objects) {
+		 console.log("save all test : saved objects length is " + objects.length);
+		 Parse.Object.destroyAll(objects, {
+		 success : function() {
+		 console.log("delete all test : successed.");
+		 }
+		 });
+		 }
+		 });
 
-		Parse.Object.saveAll([ color1, color2 ], {
-			success : function(colors) {
-				manager.save(null, {
-					success : function(manager) {
-						var manageRelation = manager.relation("manage");
-						manageRelation.add(color1);
-						manageRelation.add(color2);
+		 // test to fetch 
+		 var color = new Color();
+		 color.set("color", "red");
+		 color.set("key", 1);
+		 color.save(null, {
+		 success : function(object) {
+		 object.fetch({
+		 success : function(fetchedObject) {
+		 console.log("original object id is " + object.id + "\nand fetched object id is " + fetchedObject.id);
+		 fetchedObject.destroy();
+		 }
+		 });
+		 }
+		 });
 
-						manager.save(null, {
-							success : function(manager) {
-								manageRelation.query().find({
-									success : function(list) {
-										console.log(manager.get("name") + " manages " + list[0].get("color") + " and " + list[1].get("color") + ".");
-									}
-								});
-								manageRelation.query().count({
-									success : function(number) {
-										console.log(manager.get("name") + " manages " + number + " colors.");
-									}
-								});
-							}
-						});
-					}
-				});
-			}
-		});
+		 // test to fetch nested object and inner query
+		 var Manager = Parse.Object.extend("Manager");
+		 var manager = new Manager();
+		 manager.set("name", "taehoon");
+
+		 var color = new Color();
+		 color.set("color", "blue");
+		 color.set("key", 55);
+		 color.set("managed", manager);
+
+		 color.save(null, {
+		 success : function(object) {
+		 var manager = object.get("managed");
+		 manager.fetch({
+		 success : function(manager) {
+		 console.log(color.get("color") + " is managed " + manager.get("name"));
+		 }
+		 });
+
+		 var innerQuery = new Parse.Query(Manager);
+		 innerQuery.equalTo("name", "taehoon");
+		 var query = new Parse.Query(Color);
+		 query.matchesQuery("managed", innerQuery);
+		 query.find({
+		 success : function(list) {
+		 console.log(list.length);
+		 }
+		 });
+		 }
+		 });
+
+		 // test to relation
+		 manager = new Manager();
+		 manager.set("name", "taehoon");
+
+		 var color1 = new Color();
+		 var color2 = new Color();
+		 color1.set("color", "gray");
+		 color1.set("key", 100);
+		 color2.set("color", "cyan");
+		 color2.set("key", 403);
+
+		 Parse.Object.saveAll([ color1, color2 ], {
+		 success : function(colors) {
+		 manager.save(null, {
+		 success : function(manager) {
+		 var manageRelation = manager.relation("manage");
+		 manageRelation.add(color1);
+		 manageRelation.add(color2);
+
+		 manager.save(null, {
+		 success : function(manager) {
+		 manageRelation.query().find({
+		 success : function(list) {
+		 console.log(manager.get("name") + " manages " + list[0].get("color") + " and " + list[1].get("color") + ".");
+		 }
+		 });
+		 manageRelation.query().count({
+		 success : function(number) {
+		 console.log(manager.get("name") + " manages " + number + " colors.");
+		 }
+		 });
+		 }
+		 });
+		 }
+		 });
+		 }
+		 });*/
 	</script>
 </body>
 
