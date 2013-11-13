@@ -1,0 +1,222 @@
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>My Parse App</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="./parse-1.2.12.js"></script>
+</head>
+
+<body>
+	<script type="text/javascript">
+		Parse.initialize("YUH91TBS1TBOKVrgDRRxvmUi95luezVVQqNW5j0x", "DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx5");
+		Parse.serverURL = "https://api.parse.com";
+		// Parse.serverURL = "http://127.0.0.1";
+
+		var GameScore = Parse.Object.extend("GameScore");
+		var query = new Parse.Query(GameScore);
+		query.equalTo("playerName", "Dan Stemkoski");
+		query.find({
+			success : function(results) {
+				alert("Successfully retrieved " + results.length + " scores.");
+				// Do something with the returned Parse.Object values
+				for ( var i = 0; i < results.length; i++) {
+					var object = results[i];
+					alert(object.id + ' - ' + object.get('playerName'));
+				}
+			},
+			error : function(error) {
+				alert("Error: " + error.code + " " + error.message);
+			}
+		});
+
+		query.notEqualTo("playerName", "Michael Yabuti");
+
+		query.notEqualTo("playerName", "Michael Yabuti");
+		query.greaterThan("playerAge", 18);
+
+		query.limit(10); // limit to at most 10 results
+
+		var GameScore = Parse.Object.extend("GameScore");
+		var query = new Parse.Query(GameScore);
+		query.equalTo("playerEmail", "dstemkoski@example.com");
+		query.first({
+			success : function(object) {
+				// Successfully retrieved the object.
+			},
+			error : function(error) {
+				alert("Error: " + error.code + " " + error.message);
+			}
+		});
+
+		query.skip(10); // skip the first 10 results
+
+		// Sorts the results in ascending order by the score field
+		query.ascending("score");
+
+		// Sorts the results in descending order by the score field
+		query.descending("score");
+
+		// Restricts to wins < 50
+		query.lessThan("wins", 50);
+
+		// Restricts to wins <= 50
+		query.lessThanOrEqualTo("wins", 50);
+
+		// Restricts to wins > 50
+		query.greaterThan("wins", 50);
+
+		// Restricts to wins >= 50
+		query.greaterThanOrEqualTo("wins", 50);
+
+		// Finds scores from any of Jonathan, Dario, or Shawn
+		query.containedIn("playerName", [ "Jonathan Walsh", "Dario Wunsch", "Shawn Simon" ]);
+
+		// Finds scores from anyone who is neither Jonathan, Dario, nor Shawn
+		query.notContainedIn("playerName", [ "Jonathan Walsh", "Dario Wunsch", "Shawn Simon" ]);
+
+		// Finds objects that have the score set
+		query.exists("score");
+
+		// Finds objects that don't have the score set
+		query.doesNotExist("score");
+
+		var Team = Parse.Object.extend("Team");
+		var teamQuery = new Parse.Query(Team);
+		teamQuery.greaterThan("winPct", 0.5);
+		var userQuery = new Parse.Query(Parse.User);
+		userQuery.matchesKeyInQuery("hometown", "city", teamQuery);
+		userQuery.find({
+			success : function(results) {
+				// results has the list of users with a hometown team with a winning record
+			}
+		});
+
+		var losingUserQuery = new Parse.Query(Parse.User);
+		losingUserQuery.doesNotMatchKeyInQuery("hometown", "city", teamQuery);
+		losingUserQuery.find({
+			success : function(results) {
+				// results has the list of users with a hometown team with a losing record
+			}
+		});
+
+		var GameScore = Parse.Object.extend("GameScore");
+		var query = new Parse.Query(GameScore);
+		query.select("score", "playerName");
+		query.find().then(function(results) {
+			// each of results will only have the selected fields available.
+		});
+
+		query.first().then(function(result) {
+			// only the selected fields of the object will now be available here.
+			return result.fetch();
+		}).then(function(result) {
+			// all fields of the object will now be available here.
+		});
+
+		query.equalTo("arrayKey", 2);
+
+		query.containsAll("arrayKey", [ 2, 3, 4 ]);
+
+		query.startsWith("name", "Big Daddy's");
+
+		var Post = Parse.Object.extend("Post");
+		var myPost = new Post();
+		myPost.set("A", "B");
+		myPost.save(null, {
+			success : function(object) {
+				var query = new Parse.Query(Comment);
+				query.equalTo("post", myPost);
+				query.find({
+					success : function(comments) {
+						// comments now contains the comments for myPost
+					}
+				});
+			}
+		})
+		// Assume Parse.Object myPost was previously created.
+
+		var Post = Parse.Object.extend("Post");
+		var Comment = Parse.Object.extend("Comment");
+		var innerQuery = new Parse.Query(Post);
+		innerQuery.exists("image");
+		var query = new Parse.Query(Comment);
+		query.matchesQuery("post", innerQuery);
+		query.find({
+			success : function(comments) {
+				// comments now contains the comments for posts with images.
+			}
+		});
+
+		var Post = Parse.Object.extend("Post");
+		var Comment = Parse.Object.extend("Comment");
+		var innerQuery = new Parse.Query(Post);
+		innerQuery.exists("image");
+		var query = new Parse.Query(Comment);
+		query.doesNotMatchQuery("post", innerQuery);
+		query.find({
+			success : function(comments) {
+				// comments now contains the comments for posts without images.
+			}
+		});
+
+		var post = new Post();
+		post.id = "1zEcyElZ80";
+		query.equalTo("post", post);
+
+		var query = new Parse.Query(Comment);
+
+		// Retrieve the most recent ones
+		query.descending("createdAt");
+
+		// Only retrieve the last ten
+		query.limit(10);
+
+		// Include the post data with each comment
+		query.include("post");
+
+		query.find({
+			success : function(comments) {
+				// Comments now contains the last ten comments, and the "post" field
+				// has been populated. For example:
+				for ( var i = 0; i < comments.length; i++) {
+					// This does not require a network access.
+					var post = comments[i].get("post");
+				}
+			}
+		});
+
+		query.include([ "post.author" ]);
+
+		var GameScore = Parse.Object.extend("GameScore");
+		var query = new Parse.Query(GameScore);
+		query.equalTo("playerName", "Sean Plott");
+		query.count({
+			success : function(count) {
+				// The count request succeeded. Show the count
+				alert("Sean has played " + count + " games");
+			},
+			error : function(error) {
+				// The request failed
+			}
+		});
+
+		var lotsOfWins = new Parse.Query("Player");
+		lotsOfWins.greaterThan("wins", 150);
+
+		var fewWins = new Parse.Query("Player");
+		fewWins.lessThan("wins", 5);
+
+		var mainQuery = Parse.Query.or(lotsOfWins, fewWins);
+		mainQuery.find({
+			success : function(results) {
+				// results contains a list of players that either have won a lot of games or won only a few games.
+			},
+			error : function(error) {
+				// There was an error.
+			}
+		});
+	</script>
+</body>
+
+</html>
