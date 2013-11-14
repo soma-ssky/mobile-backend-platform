@@ -52,6 +52,12 @@ public class Util {
 			manager.addGetToEB("/:version/users", new RetrievingUserOption()); // not yet.
 			manager.addDeleteToEB("/:version/users/:objectId", new DeletingUserOption());
 
+			// role test
+			manager.addPostToEB("/:version/roles", new CreatingRoleOption());
+			manager.addGetToEB("/:version/roles", new RetrievingRoleOption());
+			manager.addPutToEB("/:version/roles", new UpdatingRoleOption());
+			manager.addDeleteToEB("/:version/roles", new DeletingRoleOption());
+			
 			// file rest
 			manager.addPostHandler("/:version/files/:fileName", new UploadingFileHandler());
 
@@ -90,7 +96,7 @@ public class Util {
 		headers.put("Access-Control-Request-Method", "*");
 		headers.put("Content-Type", "application/json; charset=utf-8");
 		headers.put("Status", code + " " + statusMessageByCode(code));
-		headers.put("Content-Length", "" + length);
+		//headers.put("Content-Length", "" + length);
 		return headers;
 	}
 
