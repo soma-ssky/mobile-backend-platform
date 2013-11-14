@@ -45,6 +45,7 @@ public class Util {
 
 			// user rest
 			manager.addPostToEB("/:version/users", new SigningUpUserOption());
+			manager.addPostToEB("/:version/login", new LoggingInUserOption());
 			manager.addGetToEB("/:version/login", new LoggingInUserOption());
 			manager.addGetToEB("/:version/users/:objectId", new FetchingUserOption());
 			manager.addPutToEB("/:version/users/:objectId", new UpdatingUserOption());

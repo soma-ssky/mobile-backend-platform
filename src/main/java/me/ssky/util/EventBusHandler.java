@@ -26,7 +26,8 @@ public class EventBusHandler implements Handler<HttpServerRequest> {
 					@Override
 					public void handle(Message<JsonObject> message) {
 						HttpServerResponse response = request.response();
-						response.setStatusCode(ebOption.statusCodeInSuccess());
+						int code = (message.body().getString("error") != null) ? 400 : ebOption.statusCodeInSuccess();
+						response.setStatusCode(code);
 						response.setStatusMessage(Util.statusMessageByCode(ebOption.statusCodeInSuccess()));
 						response.headers().set(ebOption.headers(message.body()));
 						response.end(message.body().encode());
