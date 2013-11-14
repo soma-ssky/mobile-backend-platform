@@ -15,11 +15,16 @@ public class LoggingInUserOption extends EventBusOption {
 
 	@Override
 	public JsonObject option(HttpServerRequest request, JsonObject data) {
+		String _method = data.getString("_method");
 		Util.removeInvalidField(data);
-		
+
 		JsonObject option = new JsonObject();
 		option.putString("action", "login");
-		option.putObject("document", Util.convertParamsToJsonObject(request.params()));
+		if (request.method().equals("GET")) {
+			option.putObject("document", Util.convertParamsToJsonObject(request.params()));
+		} else if(_method.equals("GET")){
+			option.putObject("document", data);
+		}
 		return option;
 	}
 

@@ -28,7 +28,7 @@ public class EventBusHandler implements Handler<HttpServerRequest> {
 						HttpServerResponse response = request.response();
 						int code = (message.body().getString("error") != null) ? 400 : ebOption.statusCodeInSuccess();
 						response.setStatusCode(code);
-						response.setStatusMessage(Util.statusMessageByCode(ebOption.statusCodeInSuccess()));
+						response.setStatusMessage(Util.statusMessageByCode(code));
 						response.headers().set(ebOption.headers(message.body()));
 						response.end(message.body().encode());
 					}
