@@ -1,4 +1,4 @@
-package test.java;
+package main.java.me.ssky.test;
 
 import org.junit.FixMethodOrder;
 
@@ -21,7 +21,7 @@ import static org.vertx.testtools.VertxAssert.assertNotSame;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserEventBusTest extends TestVerticle {
 	private EventBus eb;
-// ºñ¹Ð¹øÈ£ ¹Ù²î¸é ÅäÅ« Àç¹ß±Þ
+// ï¿½ï¿½Ð¹ï¿½È£ ï¿½Ù²ï¿½ï¿½ ï¿½ï¿½Å« ï¿½ï¿½ß±ï¿½
 	@Override
 	public void start() {
 		eb = vertx.eventBus();

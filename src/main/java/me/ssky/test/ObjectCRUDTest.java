@@ -1,4 +1,4 @@
-package test.java.me.ssky;
+package main.java.me.ssky.test;
 
 import main.java.me.ssky.util.Util;
 

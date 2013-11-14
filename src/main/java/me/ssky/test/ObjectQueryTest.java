@@ -1,4 +1,4 @@
-package test.java.me.ssky;
+package main.java.me.ssky.test;
 
 import static org.vertx.testtools.VertxAssert.assertEquals;
 import static org.vertx.testtools.VertxAssert.assertNotNull;

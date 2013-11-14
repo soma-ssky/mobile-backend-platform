@@ -1,4 +1,4 @@
-package main.java.util;
+package main.java.me.ssky.util;
 
 import org.vertx.java.core.json.JsonObject;
 

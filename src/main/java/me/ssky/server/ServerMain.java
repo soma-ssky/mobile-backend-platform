@@ -1,11 +1,10 @@
-package main.java.server;
+package main.java.me.ssky.server;
 
-import main.java.util.Util;
+import main.java.me.ssky.util.Util;
 
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
@@ -21,12 +20,10 @@ public class ServerMain extends Verticle {
 	private static final int DB_PORT = 27017;
 	private static final String DB_NAME = "test";
 
-	public static EventBus eb;
 	public static Vertx _vertx;
 
 	@Override
 	public void start() {
-		eb = vertx.eventBus();
 		_vertx = vertx;
 
 		container.deployModule(MONGO_MODULE_NAME, mongoConfig(), new Handler<AsyncResult<String>>() {
