@@ -30,8 +30,10 @@ public class CreatingObjectOption extends EventBusOption {
 			option.putObject("documents", data);
 		} else if (method.equals("GET")) {
 			option = new RetrievingObjectOption().option(request, data);
-		} else {
-			// bad request
+		} else if (method.equals("PUT")) {
+			option = new UpdatingObjectOption().option(request, data);
+		} else if (method.equals("DELETE")) {
+			option = new DeletingObjectOption().option(request, data);
 		}
 		return option;
 	}
