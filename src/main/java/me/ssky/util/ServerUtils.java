@@ -3,6 +3,8 @@ package main.java.me.ssky.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import main.java.me.ssky.file.RetrievingFileHandler;
+import main.java.me.ssky.file.UploadingFileHandler;
 import main.java.me.ssky.objects.BatchingObjectHandler;
 import main.java.me.ssky.objects.ClientObjectOption;
 import main.java.me.ssky.objects.CreatingObjectOption;
@@ -21,7 +23,7 @@ import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 
-public class Util {
+public class ServerUtils {
 	public static final String MONGO_PERSISTOR_ADDRESS = "vertx.mongo.persistor";
 	public static final String OBJECT_MANAGER_ADDRESS = "ssky.object.manager";
 	public static final String AUTH_MANAGER_ADDRESS = "ssky.auth.manager";
@@ -49,17 +51,12 @@ public class Util {
 			manager.addGetToEB("/:version/login", new LoggingInUserOption());
 			manager.addGetToEB("/:version/users/:objectId", new FetchingUserOption());
 			manager.addPutToEB("/:version/users/:objectId", new UpdatingUserOption());
-			manager.addGetToEB("/:version/users", new RetrievingUserOption()); // not yet.
+			manager.addGetToEB("/:version/users", new RetrievingUserOption());
 			manager.addDeleteToEB("/:version/users/:objectId", new DeletingUserOption());
 
-			// role test
-			manager.addPostToEB("/:version/roles", new CreatingRoleOption());
-			manager.addGetToEB("/:version/roles", new RetrievingRoleOption());
-			manager.addPutToEB("/:version/roles", new UpdatingRoleOption());
-			manager.addDeleteToEB("/:version/roles", new DeletingRoleOption());
-			
 			// file rest
 			manager.addPostHandler("/:version/files/:fileName", new UploadingFileHandler());
+			manager.addGetHandler("/:version/files/:fileDir/:fileName", new RetrievingFileHandler());
 
 			manager.addNoMatchHandler(new NoMatchHandler());
 		}
@@ -90,18 +87,17 @@ public class Util {
 		return data;
 	}
 
-	public static Map<String, String> getResponseHeaders(int code, int length) {
+	public static Map<String, String> responseHeaders(int code) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Access-Control-Allow-Origin", "*");
 		headers.put("Access-Control-Request-Method", "*");
 		headers.put("Content-Type", "application/json; charset=utf-8");
 		headers.put("Status", code + " " + statusMessageByCode(code));
-		//headers.put("Content-Length", "" + length);
 		return headers;
 	}
 
-	public static Map<String, String> getCreatedResponseHeaders(int code, int length, String location) {
-		Map<String, String> headers = getResponseHeaders(code, length);
+	public static Map<String, String> responseHeadersInCreated(int code, int length, String location) {
+		Map<String, String> headers = responseHeaders(code);
 		headers.put("Location", location);
 		return headers;
 	}
@@ -121,7 +117,5 @@ public class Util {
 			document.putString(name, headers.get(name));
 		}
 		return document;
-
 	}
-
 }

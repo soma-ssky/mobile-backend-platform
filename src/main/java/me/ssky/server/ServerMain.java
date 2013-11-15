@@ -1,6 +1,6 @@
 package main.java.me.ssky.server;
 
-import main.java.me.ssky.util.Util;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
@@ -26,6 +26,7 @@ public class ServerMain extends Verticle {
 	public void start() {
 		_vertx = vertx;
 
+		container.deployVerticle("FriendRelationManager.java", relationConfig());
 		container.deployModule(MONGO_MODULE_NAME, mongoConfig(), new Handler<AsyncResult<String>>() {
 			@Override
 			public void handle(AsyncResult<String> result) {
@@ -35,13 +36,20 @@ public class ServerMain extends Verticle {
 		container.deployModule(SSKY_OBJECT_MODULE_NAME, objectConfig());
 		container.deployModule(AUTH_MODULE_NAME, authConfig());
 
-		RouteMatcher routeMatcher = Util.getRouteMatcher();
+		RouteMatcher routeMatcher = ServerUtils.getRouteMatcher();
 		vertx.createHttpServer().requestHandler(routeMatcher).listen(PORT);
+
+	}
+
+	private JsonObject relationConfig() {
+		JsonObject relationConfig = new JsonObject();
+		relationConfig.putString("thisAddress", "realtion-manager");
+		return relationConfig;
 	}
 
 	private JsonObject mongoConfig() {
 		JsonObject mongoConfig = new JsonObject();
-		mongoConfig.putString("address", Util.MONGO_PERSISTOR_ADDRESS);
+		mongoConfig.putString("address", ServerUtils.MONGO_PERSISTOR_ADDRESS);
 		mongoConfig.putString("host", DB_HOST);
 		mongoConfig.putNumber("port", DB_PORT);
 		mongoConfig.putString("db_name", DB_NAME);
@@ -50,14 +58,14 @@ public class ServerMain extends Verticle {
 
 	private JsonObject authConfig() {
 		JsonObject authConfig = new JsonObject();
-		authConfig.putString("this_address", Util.AUTH_MANAGER_ADDRESS);
-		authConfig.putString("db_address", Util.MONGO_PERSISTOR_ADDRESS);
+		authConfig.putString("this_address", ServerUtils.AUTH_MANAGER_ADDRESS);
+		authConfig.putString("db_address", ServerUtils.MONGO_PERSISTOR_ADDRESS);
 		return authConfig;
 	}
 
 	private JsonObject gridFsConfig() {
 		JsonObject gridfsConfig = new JsonObject();
-		gridfsConfig.putString("address", Util.MONGO_GRIDFS_ADDRESS);
+		gridfsConfig.putString("address", ServerUtils.MONGO_GRIDFS_ADDRESS);
 		gridfsConfig.putString("host", DB_HOST);
 		gridfsConfig.putNumber("port", DB_PORT);
 		gridfsConfig.putString("db_name", DB_NAME);
@@ -66,8 +74,8 @@ public class ServerMain extends Verticle {
 
 	private JsonObject objectConfig() {
 		JsonObject objectConfig = new JsonObject();
-		objectConfig.putString("this_address", Util.OBJECT_MANAGER_ADDRESS);
-		objectConfig.putString("db_address", Util.MONGO_PERSISTOR_ADDRESS);
+		objectConfig.putString("this_address", ServerUtils.OBJECT_MANAGER_ADDRESS);
+		objectConfig.putString("db_address", ServerUtils.MONGO_PERSISTOR_ADDRESS);
 		return objectConfig;
 	}
 

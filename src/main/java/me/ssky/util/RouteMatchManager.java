@@ -7,6 +7,10 @@ import org.vertx.java.core.http.RouteMatcher;
 public class RouteMatchManager {
 	private RouteMatcher routeMatcher = new RouteMatcher();
 
+	public void addOptionsToEB(String pattern, EventBusOption option) {
+		routeMatcher.options(pattern, new EventBusHandler(option));
+	}
+
 	public void addPostToEB(String pattern, EventBusOption option) {
 		routeMatcher.post(pattern, new EventBusHandler(option));
 	}
@@ -25,6 +29,10 @@ public class RouteMatchManager {
 
 	public void addPostHandler(String pattern, Handler<HttpServerRequest> handler) {
 		routeMatcher.post(pattern, handler);
+	}
+
+	public void addGetHandler(String pattern, Handler<HttpServerRequest> handler) {
+		routeMatcher.get(pattern, handler);
 	}
 
 	public void addNoMatchHandler(Handler<HttpServerRequest> handler) {

@@ -1,7 +1,7 @@
 package main.java.me.ssky.objects;
 
 import main.java.me.ssky.util.EventBusOption;
-import main.java.me.ssky.util.Util;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
@@ -10,7 +10,7 @@ public class RetrievingObjectOption extends EventBusOption {
 
 	@Override
 	public String address() {
-		return Util.OBJECT_MANAGER_ADDRESS;
+		return ServerUtils.OBJECT_MANAGER_ADDRESS;
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package main.java.me.ssky.util;
 
 import org.vertx.java.core.json.JsonObject;
 
-public class MongoUtil {
+public class MongoUtils {
 
 	public static JsonObject saveConfig(String collection, JsonObject document) {
 		JsonObject saveConfig = new JsonObject();

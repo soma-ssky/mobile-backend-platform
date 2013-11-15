@@ -1,6 +1,6 @@
 package main.java.me.ssky.test;
 
-import main.java.me.ssky.util.Util;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -232,7 +232,7 @@ public class ObjectCRUDTest extends TestVerticle {
 
 	private JsonObject mongoConfig() {
 		JsonObject mongoConfig = new JsonObject();
-		mongoConfig.putString("address", Util.MONGO_PERSISTOR_ADDRESS);
+		mongoConfig.putString("address", ServerUtils.MONGO_PERSISTOR_ADDRESS);
 		mongoConfig.putString("host", DB_HOST);
 		mongoConfig.putNumber("port", DB_PORT);
 		mongoConfig.putString("db_name", DB_NAME);
@@ -241,8 +241,8 @@ public class ObjectCRUDTest extends TestVerticle {
 
 	private JsonObject objectConfig() {
 		JsonObject objectConfig = new JsonObject();
-		objectConfig.putString("this_address", Util.OBJECT_MANAGER_ADDRESS);
-		objectConfig.putString("db_address", Util.MONGO_PERSISTOR_ADDRESS);
+		objectConfig.putString("this_address", ServerUtils.OBJECT_MANAGER_ADDRESS);
+		objectConfig.putString("db_address", ServerUtils.MONGO_PERSISTOR_ADDRESS);
 		return objectConfig;
 	}
 

@@ -1,7 +1,7 @@
 package main.java.me.ssky.objects;
 
 import main.java.me.ssky.server.ServerMain;
-import main.java.me.ssky.util.Util;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.buffer.Buffer;
@@ -22,7 +22,7 @@ public class BatchingObjectHandler implements Handler<HttpServerRequest> {
 				final JsonArray responses = new JsonArray();
 				for (int i = 0; i < requests.size(); i++) {
 					JsonObject option = getBatchingOption((JsonObject) requests.get(i));
-					ServerMain._vertx.eventBus().send(Util.OBJECT_MANAGER_ADDRESS, option, new Handler<Message<JsonObject>>() {
+					ServerMain._vertx.eventBus().send(ServerUtils.OBJECT_MANAGER_ADDRESS, option, new Handler<Message<JsonObject>>() {
 						@Override
 						public void handle(Message<JsonObject> result) {
 							JsonObject response = new JsonObject();
@@ -40,7 +40,7 @@ public class BatchingObjectHandler implements Handler<HttpServerRequest> {
 					public void handle(Long timerId) {
 						// cancel timer with timer id 
 						if (responses.size() == requests.size()) {
-							request.response().headers().set(Util.getResponseHeaders(200, responses.encode().length()));
+							request.response().headers().set(ServerUtils.responseHeaders(200));
 							request.response().end(responses.encode());
 							ServerMain._vertx.cancelTimer(timerId);
 						}

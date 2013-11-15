@@ -12,7 +12,7 @@ abstract public class EventBusOption {
 	abstract public JsonObject option(HttpServerRequest request, JsonObject data);
 
 	public Map<String, String> headers(JsonObject result) {
-		return Util.getResponseHeaders(statusCodeInSuccess(), result.encode().length());
+		return ServerUtils.responseHeaders(statusCodeInSuccess());
 	}
 
 	public int statusCodeInSuccess() {

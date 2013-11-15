@@ -3,7 +3,7 @@ package main.java.me.ssky.users;
 import java.util.Map;
 
 import main.java.me.ssky.util.EventBusOption;
-import main.java.me.ssky.util.Util;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
@@ -13,13 +13,13 @@ public class SigningUpUserOption extends EventBusOption {
 
 	@Override
 	public String address() {
-		return Util.AUTH_MANAGER_ADDRESS;
+		return ServerUtils.AUTH_MANAGER_ADDRESS;
 	}
 
 	@Override
 	public JsonObject option(HttpServerRequest request, JsonObject data) {
 		method = data.getString("_method");
-		Util.removeInvalidField(data);
+		ServerUtils.removeInvalidField(data);
 
 		JsonObject option = new JsonObject();
 		if (method == null) {
@@ -36,10 +36,10 @@ public class SigningUpUserOption extends EventBusOption {
 	@Override
 	public Map<String, String> headers(JsonObject result) {
 		if (method == null) {
-			String location = "/" + Util.VERSION + "/users/" + result.getString("objectId");
-			return Util.getCreatedResponseHeaders(statusCodeInSuccess(), result.encode().length(), location);
+			String location = "/" + ServerUtils.VERSION + "/users/" + result.getString("objectId");
+			return ServerUtils.responseHeadersInCreated(statusCodeInSuccess(), result.encode().length(), location);
 		} else {
-			return Util.getResponseHeaders(statusCodeInSuccess(), result.encode().length());
+			return ServerUtils.responseHeaders(statusCodeInSuccess());
 		}
 	}
 
