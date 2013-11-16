@@ -1,9 +1,12 @@
-package main.java.me.ssky.util;
+package main.java.me.ssky.story;
+
+import main.java.me.ssky.util.EventBusOption;
+import main.java.me.ssky.util.ServerUtils;
 
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
 
-public class UnfollowFriendOption extends EventBusOption {
+public class GettingFollowerOption extends EventBusOption {
 
 	@Override
 	public String address() {
@@ -13,11 +16,8 @@ public class UnfollowFriendOption extends EventBusOption {
 	@Override
 	public JsonObject option(HttpServerRequest request, JsonObject data) {
 		JsonObject option = new JsonObject();
-		option.putString("action", "unfollow");
-		option.putString("myId", request.path().split("/")[3]);
-		option.putString("friendId", request.path().split("/")[5]);
-
+		option.putString("action", "getFollowerList");
+		option.putString("myId", request.path().split("/")[4]);
 		return option;
 	}
-
 }

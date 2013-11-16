@@ -27,7 +27,7 @@ public class ServerMain extends Verticle {
 	public void start() {
 		_vertx = vertx;
 
-		container.deployVerticle("StoryManager.java", relationConfig());
+		container.deployVerticle("StoryVerticle.java", relationConfig());
 
 		// Don't deploy mongo persistor and gridfs manager at the same time,
 		container.deployModule(MONGO_MODULE_NAME, mongoConfig(), new Handler<AsyncResult<String>>() {

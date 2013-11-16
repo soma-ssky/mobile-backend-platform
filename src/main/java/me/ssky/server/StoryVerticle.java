@@ -9,7 +9,7 @@ import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
-public class StoryManager extends Verticle implements Handler<Message<JsonObject>> {
+public class StoryVerticle extends Verticle implements Handler<Message<JsonObject>> {
 	private EventBus eb;
 	private String objAddress;
 	private String relationCollection;
@@ -24,7 +24,6 @@ public class StoryManager extends Verticle implements Handler<Message<JsonObject
 		objAddress = config.getString("objAddress");
 		relationCollection = config.getString("relationCollection");
 		postCollection = config.getString("postCollection");
-		postCollection.split("d");
 
 		vertx.eventBus().registerHandler(thisAddress, this);
 	}
@@ -66,7 +65,6 @@ public class StoryManager extends Verticle implements Handler<Message<JsonObject
 		option.putString("action", "save");
 		option.putString("collection", relationCollection);
 		option.putObject("documents", documents);
-		System.out.println(option.encode());
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
