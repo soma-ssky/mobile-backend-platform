@@ -20,23 +20,29 @@ public class UploadingFileHandler implements Handler<HttpServerRequest> {
 	public void handle(final HttpServerRequest request) {
 		final String fileId = UUID.randomUUID().toString();
 		final String token = UUID.randomUUID().toString();
-		File dir = new File(token);
+
+		File dir = new File("./files");
 		if (!dir.exists()) {
 			dir.mkdir();
+		}
+
+		File tokenDir = new File("./files/" + token);
+		if (!tokenDir.exists()) {
+			tokenDir.mkdir();
 		}
 
 		final String fileName = fileId + "-" + request.path().split("/")[3];
 		final UploadingFileHelper helper = new UploadingFileHelper();
 
 		final String path = token + "/" + fileName;
-		final String url = "http://localhost/1/files/" + path;
+		final String url = ServerMain.HOST + "/1/files/" + path;
 
 		if (request.headers().get("origin") != null) {
 			request.bodyHandler(new Handler<Buffer>() {
 				@Override
 				public void handle(Buffer buffer) {
 					JsonObject data = new JsonObject(buffer.toString());
-					if (Base64.decodeToFile(data.getString("base64"), path)) {
+					if (Base64.decodeToFile(data.getString("base64"), "./files/" + path)) {
 						JsonObject reply = new JsonObject();
 						reply.putString("url", url);
 						reply.putString("name", fileName);

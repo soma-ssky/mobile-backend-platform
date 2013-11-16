@@ -21,11 +21,18 @@ public class EventBusHandler implements Handler<HttpServerRequest> {
 		request.bodyHandler(new Handler<Buffer>() {
 			@Override
 			public void handle(Buffer buffer) {
-				JsonObject data = new JsonObject(buffer.toString());
+				JsonObject data;
+				if (buffer.length() > 0) {
+					data = new JsonObject(buffer.toString());
+				} else {
+					data = null;
+				}
+
 				ServerMain._vertx.eventBus().send(ebOption.address(), ebOption.option(request, data), new Handler<Message<JsonObject>>() {
 					@Override
 					public void handle(Message<JsonObject> message) {
 						HttpServerResponse response = request.response();
+						System.out.println(message.body());
 						int code = (message.body().getString("error") != null) ? 400 : ebOption.statusCodeInSuccess();
 						response.setStatusCode(code);
 						response.setStatusMessage(ServerUtils.statusMessageByCode(code));

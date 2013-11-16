@@ -12,6 +12,7 @@ import main.java.me.ssky.objects.DeletingObjectOption;
 import main.java.me.ssky.objects.FetchingObjectOption;
 import main.java.me.ssky.objects.RetrievingObjectOption;
 import main.java.me.ssky.objects.UpdatingObjectOption;
+import main.java.me.ssky.server.ServerMain;
 import main.java.me.ssky.users.DeletingUserOption;
 import main.java.me.ssky.users.FetchingUserOption;
 import main.java.me.ssky.users.LoggingInUserOption;
@@ -24,11 +25,14 @@ import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 
 public class ServerUtils {
-	public static final String MONGO_PERSISTOR_ADDRESS = "vertx.mongo.persistor";
+	public static final String HOST = "http://api.ssky.me/";
+	public static final String MONGO_PERSISTOR_ADDRESS = "ssky.mongo.persistor";
 	public static final String OBJECT_MANAGER_ADDRESS = "ssky.object.manager";
 	public static final String AUTH_MANAGER_ADDRESS = "ssky.auth.manager";
 	public static final String MONGO_GRIDFS_ADDRESS = "ssky.gridfs.manager";
-	public static final String ROLE_MANAGER_ADDRESS = "ssky.role.manager";
+
+	public static final String FRIEND_RELATION_MANAGER_ADDRESS = "ssky.friend.relation.manager";
+
 	public static final String VERSION = "1";
 	private static RouteMatchManager manager = null;
 
@@ -40,7 +44,7 @@ public class ServerUtils {
 			manager.addPostToEB("/:version/classes/:className", new CreatingObjectOption());
 			manager.addPostToEB("/:version/classes/:className/:objectId", new ClientObjectOption());
 			manager.addGetToEB("/:version/classes/:className/:objectId", new FetchingObjectOption());
-			manager.addGetToEB("/:version/classes/:className", new RetrievingObjectOption()); // not yet.
+			manager.addGetToEB("/:version/classes/:className", new RetrievingObjectOption());
 			manager.addPutToEB("/:version/classes/:className", new UpdatingObjectOption());
 			manager.addDeleteToEB("/:version/classes/:className", new DeletingObjectOption());
 			manager.addPostHandler("/:version/batch", new BatchingObjectHandler());
@@ -57,6 +61,19 @@ public class ServerUtils {
 			// file rest
 			manager.addPostHandler("/:version/files/:fileName", new UploadingFileHandler());
 			manager.addGetHandler("/:version/files/:fileDir/:fileName", new RetrievingFileHandler());
+
+			// friend rest
+			manager.addGetToEB("/:version/friends/:myId/follow/:friendId", new FollowFriendOption());
+			// curl -X GET http://localhost/1/friends/8f868057-d40a-418a-b111-c7dabf0557f9/follow/3c0b68bb-5e58-4cbf-ad26-bdafafd432c9
+
+			manager.addGetToEB("/:version/friends/:myId/unfollow/:friendId", new UnfollowFriendOption());
+			// curl -X GET http://localhost/1/friends/8f868057-d40a-418a-b111-c7dabf0557f9/unfollow/3c0b68bb-5e58-4cbf-ad26-bdafafd432c9
+
+			manager.addGetToEB("/:version/friends/followerBy/:myId", new GettingFollowerOption());
+			// curl -X GET http://localhost/1/friends/followerBy/8f868057-d40a-418a-b111-c7dabf0557f9
+
+			manager.addGetToEB("/:version/friends/postToFollowerBy/:myId", new PostingToFollowerOption());
+			// curl -X GET http://localhost/1/friends/postToFollowerBy/8f868057-d40a-418a-b111-c7dabf0557f9
 
 			manager.addNoMatchHandler(new NoMatchHandler());
 		}
@@ -98,7 +115,7 @@ public class ServerUtils {
 
 	public static Map<String, String> responseHeadersInCreated(int code, int length, String location) {
 		Map<String, String> headers = responseHeaders(code);
-		headers.put("Location", location);
+		headers.put("Location", ServerMain.HOST + location);
 		return headers;
 	}
 

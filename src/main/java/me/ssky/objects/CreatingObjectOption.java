@@ -21,7 +21,6 @@ public class CreatingObjectOption extends EventBusOption {
 	public JsonObject option(HttpServerRequest request, JsonObject data) {
 		method = data.getString("_method");
 		ServerUtils.removeInvalidField(data);
-
 		JsonObject option = new JsonObject();
 		collection = request.path().split("/")[3];
 		if (method == null) {

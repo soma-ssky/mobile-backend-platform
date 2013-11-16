@@ -10,11 +10,12 @@ import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.platform.Verticle;
 
 public class ServerMain extends Verticle {
+	public static final String HOST = "http://api.ssky.me";
 	private static final int PORT = 80;
-	private static final String MONGO_MODULE_NAME = "io.vertx~mod-mongo-persistor~2.0.0-final";
-	private static final String SSKY_OBJECT_MODULE_NAME = "me.ssky~object-manager~1.0-final";
-	private static final String AUTH_MODULE_NAME = "me.ssky~auth-manager~0.1";
+	private static final String MONGO_MODULE_NAME = "me.ssky~mongo-persistor~1.0";
+	private static final String AUTH_MODULE_NAME = "me.ssky~auth-manager~1.0";
 	private static final String GRIDFS_MOUDLE_NAME = "me.ssky~mongo.gridfs.manager~1.0";
+	private static final String SSKY_OBJECT_MODULE_NAME = "me.ssky~object-manager~1.0";
 
 	private static final String DB_HOST = "127.0.0.1";
 	private static final int DB_PORT = 27017;
@@ -26,10 +27,13 @@ public class ServerMain extends Verticle {
 	public void start() {
 		_vertx = vertx;
 
-		container.deployVerticle("FriendRelationManager.java", relationConfig());
+		container.deployVerticle("StoryManager.java", relationConfig());
+
+		// Don't deploy mongo persistor and gridfs manager at the same time,
 		container.deployModule(MONGO_MODULE_NAME, mongoConfig(), new Handler<AsyncResult<String>>() {
 			@Override
 			public void handle(AsyncResult<String> result) {
+				// after deploying mongo persister, deploy mongo gridfs manager
 				container.deployModule(GRIDFS_MOUDLE_NAME, gridFsConfig());
 			}
 		});
@@ -43,7 +47,11 @@ public class ServerMain extends Verticle {
 
 	private JsonObject relationConfig() {
 		JsonObject relationConfig = new JsonObject();
-		relationConfig.putString("thisAddress", "realtion-manager");
+		relationConfig.putString("thisAddress", ServerUtils.FRIEND_RELATION_MANAGER_ADDRESS);
+		relationConfig.putString("objAddress", ServerUtils.OBJECT_MANAGER_ADDRESS);
+		relationConfig.putString("postCollection", "_Post");
+		relationConfig.putString("relationCollection", "_Relation");
+
 		return relationConfig;
 	}
 

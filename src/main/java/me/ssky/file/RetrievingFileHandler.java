@@ -17,7 +17,7 @@ public class RetrievingFileHandler implements Handler<HttpServerRequest> {
 		String dirName = request.path().split("/")[3];
 		final String fileName = request.path().split("/")[4];
 
-		String path = "./../server/" + dirName + "/" + fileName;
+		String path = "./../server/files/" + dirName + "/" + fileName;
 		File file = new File(path);
 		if (file.exists()) {
 			request.response().sendFile(path);
