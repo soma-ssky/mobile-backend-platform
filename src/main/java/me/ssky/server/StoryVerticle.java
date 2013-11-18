@@ -54,12 +54,9 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 	}
 
 	private void follow(final Message<JsonObject> message) {
-		final String myId = message.body().getString("myId");
-		final String friendId = message.body().getString("friendId");
-
 		JsonObject documents = new JsonObject();
-		documents.putString("from", myId);
-		documents.putString("to", friendId);
+		documents.putString("from", message.body().getString("from"));
+		documents.putString("to", message.body().getString("to"));
 
 		JsonObject option = new JsonObject();
 		option.putString("action", "save");
@@ -74,12 +71,9 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 	}
 
 	private void unfollow(final Message<JsonObject> message) {
-		final String myId = message.body().getString("myId");
-		final String friendId = message.body().getString("friendId");
-
 		JsonObject matcher = new JsonObject();
-		matcher.putString("from", myId);
-		matcher.putString("to", friendId);
+		matcher.putString("from", message.body().getString("from"));
+		matcher.putString("to", message.body().getString("to"));
 
 		JsonObject option = new JsonObject();
 		option.putString("action", "delete");
@@ -95,12 +89,10 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 	}
 
 	private void getMyFollowingList(final Message<JsonObject> message) {
-		String myId = message.body().getString("myId");
-
 		JsonObject option = new JsonObject();
 		option.putString("action", "retrieve");
 		option.putString("collection", relationCollection);
-		option.putObject("matcher", new JsonObject().putString("from", myId));
+		option.putObject("matcher", new JsonObject().putString("from", message.body().getString("from")));
 
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override
@@ -117,12 +109,10 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 	}
 
 	private void getFollowerPostList(final Message<JsonObject> message) {
-		String myId = message.body().getString("myId");
-
 		JsonObject option = new JsonObject();
 		option.putString("action", "retrieve");
 		option.putString("collection", relationCollection);
-		option.putObject("matcher", new JsonObject().putString("from", myId));
+		option.putObject("matcher", new JsonObject().putString("from", message.body().getString("from")));
 
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override

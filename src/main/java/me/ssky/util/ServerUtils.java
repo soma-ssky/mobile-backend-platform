@@ -13,8 +13,7 @@ import main.java.me.ssky.objects.FetchingObjectOption;
 import main.java.me.ssky.objects.RetrievingObjectOption;
 import main.java.me.ssky.objects.UpdatingObjectOption;
 import main.java.me.ssky.server.ServerMain;
-import main.java.me.ssky.story.FollowFriendOption;
-import main.java.me.ssky.story.GettingFollowerOption;
+import main.java.me.ssky.story.FollowOrGetFriendListOption;
 import main.java.me.ssky.story.PostingToFollowerOption;
 import main.java.me.ssky.story.UnfollowFriendOption;
 import main.java.me.ssky.users.DeletingUserOption;
@@ -35,7 +34,7 @@ public class ServerUtils {
 	public static final String AUTH_MANAGER_ADDRESS = "ssky.auth.manager";
 	public static final String MONGO_GRIDFS_ADDRESS = "ssky.gridfs.manager";
 
-	public static final String FRIEND_RELATION_MANAGER_ADDRESS = "ssky.friend.relation.manager";
+	public static final String STORY_MANAGER_ADDRESS = "ssky.story.manager";
 
 	public static final String VERSION = "1";
 	private static RouteMatchManager manager = null;
@@ -44,11 +43,10 @@ public class ServerUtils {
 		if (manager == null) {
 			manager = new RouteMatchManager();
 
-			// friend rest
-			manager.addPostToEB("/:version/classes/_Relation", new FollowFriendOption());
-			manager.addDeleteToEB("/:version/classes/_Relation", new UnfollowFriendOption());
-			manager.addGetToEB("/:version/classes/_Friends/:myId", new GettingFollowerOption());
-			manager.addGetToEB("/:version/classes/_Post/:myId", new PostingToFollowerOption());
+			// story rest
+			manager.addPostToEB("/:version/classes/_Relation", new FollowOrGetFriendListOption());
+			manager.addPostToEB("/:version/classes/_Relation/:relationId", new UnfollowFriendOption());
+			manager.addPostToEB("/:version/classes/_Post", new PostingToFollowerOption());
 
 			// object rest
 			manager.addPostToEB("/:version/classes/:className", new CreatingObjectOption());

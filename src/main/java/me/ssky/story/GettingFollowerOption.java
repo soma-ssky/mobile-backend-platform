@@ -10,7 +10,7 @@ public class GettingFollowerOption extends EventBusOption {
 
 	@Override
 	public String address() {
-		return ServerUtils.FRIEND_RELATION_MANAGER_ADDRESS;
+		return ServerUtils.STORY_MANAGER_ADDRESS;
 	}
 
 	@Override

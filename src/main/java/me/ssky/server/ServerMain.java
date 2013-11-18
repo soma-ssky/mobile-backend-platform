@@ -47,7 +47,7 @@ public class ServerMain extends Verticle {
 
 	private JsonObject relationConfig() {
 		JsonObject relationConfig = new JsonObject();
-		relationConfig.putString("thisAddress", ServerUtils.FRIEND_RELATION_MANAGER_ADDRESS);
+		relationConfig.putString("thisAddress", ServerUtils.STORY_MANAGER_ADDRESS);
 		relationConfig.putString("objAddress", ServerUtils.OBJECT_MANAGER_ADDRESS);
 		relationConfig.putString("postCollection", "_Post");
 		relationConfig.putString("relationCollection", "_Relation");
