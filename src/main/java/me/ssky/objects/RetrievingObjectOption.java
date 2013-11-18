@@ -18,13 +18,18 @@ public class RetrievingObjectOption extends EventBusOption {
 		JsonObject option = new JsonObject();
 		option.putString("action", "retrieve");
 		option.putString("collection", request.path().split("/")[3]);
+
+		if (data.getObject("where").getString("objectId") != null) {
+			data.getObject("where").putString("_id", data.getObject("where").getString("objectId"));
+			data.getObject("where").removeField("objectId");
+		}
+
 		option.putObject("matcher", data.getObject("where"));
 
 		adjustOrder(data, option);
 		adjustKeys(data, option);
 		adjustSkip(data, option);
 		adjustLimit(data, option);
-
 		return option;
 	}
 
