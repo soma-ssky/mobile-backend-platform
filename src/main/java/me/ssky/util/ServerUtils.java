@@ -44,6 +44,12 @@ public class ServerUtils {
 		if (manager == null) {
 			manager = new RouteMatchManager();
 
+			// friend rest
+			manager.addPostToEB("/:version/classes/_Relation", new FollowFriendOption());
+			manager.addDeleteToEB("/:version/classes/_Relation", new UnfollowFriendOption());
+			manager.addGetToEB("/:version/classes/_Friends/:myId", new GettingFollowerOption());
+			manager.addGetToEB("/:version/classes/_Post/:myId", new PostingToFollowerOption());
+
 			// object rest
 			manager.addPostToEB("/:version/classes/:className", new CreatingObjectOption());
 			manager.addPostToEB("/:version/classes/:className/:objectId", new ClientObjectOption());
@@ -65,19 +71,6 @@ public class ServerUtils {
 			// file rest
 			manager.addPostHandler("/:version/files/:fileName", new UploadingFileHandler());
 			manager.addGetHandler("/:version/files/:fileDir/:fileName", new RetrievingFileHandler());
-
-			// friend rest
-			manager.addGetToEB("/:version/friends/:myId/follow/:friendId", new FollowFriendOption());
-			// curl -X GET http://localhost/1/friends/8f868057-d40a-418a-b111-c7dabf0557f9/follow/3c0b68bb-5e58-4cbf-ad26-bdafafd432c9
-
-			manager.addGetToEB("/:version/friends/:myId/unfollow/:friendId", new UnfollowFriendOption());
-			// curl -X GET http://localhost/1/friends/8f868057-d40a-418a-b111-c7dabf0557f9/unfollow/3c0b68bb-5e58-4cbf-ad26-bdafafd432c9
-
-			manager.addGetToEB("/:version/friends/followerBy/:myId", new GettingFollowerOption());
-			// curl -X GET http://localhost/1/friends/followerBy/8f868057-d40a-418a-b111-c7dabf0557f9
-
-			manager.addGetToEB("/:version/friends/postToFollowerBy/:myId", new PostingToFollowerOption());
-			// curl -X GET http://localhost/1/friends/postToFollowerBy/8f868057-d40a-418a-b111-c7dabf0557f9
 
 			manager.addNoMatchHandler(new NoMatchHandler());
 		}
