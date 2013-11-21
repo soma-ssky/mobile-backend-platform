@@ -109,7 +109,6 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 		option.putString("action", "retrieve");
 		option.putString("collection", relationCollection);
 		option.putObject("matcher", new JsonObject().putString("from", message.body().getString("from")));
-		System.out.println(option.encode());
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {

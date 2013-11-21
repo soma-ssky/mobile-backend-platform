@@ -6,14 +6,14 @@ import java.util.Map;
 import main.java.me.ssky.file.RetrievingFileHandler;
 import main.java.me.ssky.file.UploadingFileHandler;
 import main.java.me.ssky.objects.BatchingObjectHandler;
-import main.java.me.ssky.objects.ClientObjectOption;
-import main.java.me.ssky.objects.CreatingObjectOption;
+import main.java.me.ssky.objects.PostObjectOption;
+import main.java.me.ssky.objects.PostClassOption;
 import main.java.me.ssky.objects.DeletingObjectOption;
 import main.java.me.ssky.objects.FetchingObjectOption;
 import main.java.me.ssky.objects.RetrievingObjectOption;
 import main.java.me.ssky.objects.UpdatingObjectOption;
 import main.java.me.ssky.server.ServerMain;
-import main.java.me.ssky.story.FollowOrGetFriendListOption;
+import main.java.me.ssky.story.PostRelationClassOption;
 import main.java.me.ssky.story.GettingPostToFollowerOption;
 import main.java.me.ssky.story.UnfollowFriendOption;
 import main.java.me.ssky.users.DeletingUserOption;
@@ -44,17 +44,17 @@ public class ServerUtils {
 			manager = new RouteMatchManager();
 
 			// story rest
-			manager.addPostToEB("/:version/classes/_Relation", new FollowOrGetFriendListOption());
+			manager.addPostToEB("/:version/classes/_Relation", new PostRelationClassOption());
 			manager.addPostToEB("/:version/classes/_Relation/:relationId", new UnfollowFriendOption());
 			manager.addPostToEB("/:version/classes/_Post", new GettingPostToFollowerOption());
 
 			// object rest
-			manager.addPostToEB("/:version/classes/:className", new CreatingObjectOption());
-			manager.addPostToEB("/:version/classes/:className/:objectId", new ClientObjectOption());
+			manager.addPostToEB("/:version/classes/:className", new PostClassOption());
+			manager.addPostToEB("/:version/classes/:className/:objectId", new PostObjectOption());
 			manager.addGetToEB("/:version/classes/:className/:objectId", new FetchingObjectOption());
 			manager.addGetToEB("/:version/classes/:className", new RetrievingObjectOption());
 			manager.addPutToEB("/:version/classes/:className", new UpdatingObjectOption());
-			manager.addDeleteToEB("/:version/classes/:className", new DeletingObjectOption());
+			manager.addDeleteToEB("/:version/classes/:className/:objectId", new DeletingObjectOption());
 			manager.addPostHandler("/:version/batch", new BatchingObjectHandler());
 
 			// user rest

@@ -8,7 +8,7 @@ import main.java.me.ssky.util.ServerUtils;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonObject;
 
-public class FollowOrGetFriendListOption extends EventBusOption {
+public class PostRelationClassOption extends EventBusOption {
 	private String method;
 
 	@Override
