@@ -27,7 +27,8 @@ public class EventBusHandler implements Handler<HttpServerRequest> {
 		@Override
 		public void handle(Buffer buffer) {
 			JsonObject data = (buffer.length() > 0) ? new JsonObject(buffer.toString()) : null;
-			ServerMain._vertx.eventBus().send(ebOption.address(), ebOption.option(request, data), ebHandler);
+			JsonObject option = ebOption.option(request, data);
+			ServerMain._vertx.eventBus().send(ebOption.address(), option, ebHandler);
 		}
 	};
 

@@ -17,7 +17,8 @@ public class GettingFollowerOption extends EventBusOption {
 	public JsonObject option(HttpServerRequest request, JsonObject data) {
 		JsonObject option = new JsonObject();
 		option.putString("action", "getFollowerList");
-		option.putString("myId", request.path().split("/")[4]);
+		System.out.println(data.encode());
+		option.putString("from", data.getObject("where").getString("from"));
 		return option;
 	}
 }

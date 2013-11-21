@@ -14,7 +14,7 @@ import main.java.me.ssky.objects.RetrievingObjectOption;
 import main.java.me.ssky.objects.UpdatingObjectOption;
 import main.java.me.ssky.server.ServerMain;
 import main.java.me.ssky.story.FollowOrGetFriendListOption;
-import main.java.me.ssky.story.PostingToFollowerOption;
+import main.java.me.ssky.story.GettingPostToFollowerOption;
 import main.java.me.ssky.story.UnfollowFriendOption;
 import main.java.me.ssky.users.DeletingUserOption;
 import main.java.me.ssky.users.FetchingUserOption;
@@ -46,7 +46,7 @@ public class ServerUtils {
 			// story rest
 			manager.addPostToEB("/:version/classes/_Relation", new FollowOrGetFriendListOption());
 			manager.addPostToEB("/:version/classes/_Relation/:relationId", new UnfollowFriendOption());
-			manager.addPostToEB("/:version/classes/_Post", new PostingToFollowerOption());
+			manager.addPostToEB("/:version/classes/_Post", new GettingPostToFollowerOption());
 
 			// object rest
 			manager.addPostToEB("/:version/classes/:className", new CreatingObjectOption());

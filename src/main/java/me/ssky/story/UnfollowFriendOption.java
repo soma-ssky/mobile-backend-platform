@@ -18,8 +18,7 @@ public class UnfollowFriendOption extends EventBusOption {
 		JsonObject option = new JsonObject();
 		if (data.getString("_method").equals("DELETE")) {
 			option.putString("action", "unfollow");
-			option.putString("from", data.getString("from"));
-			option.putString("to", data.getString("to"));
+			option.putObject("matcher", new JsonObject().putString("_id", request.path().split("/")[4]));
 		}
 		return option;
 	}

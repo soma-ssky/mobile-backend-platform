@@ -43,7 +43,7 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 			unfollow(message);
 			break;
 		case "getFollowerList":
-			getMyFollowingList(message);
+			getMyFollowerList(message);
 			break;
 		case "getPostList":
 			getFollowerPostList(message);
@@ -71,14 +71,10 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 	}
 
 	private void unfollow(final Message<JsonObject> message) {
-		JsonObject matcher = new JsonObject();
-		matcher.putString("from", message.body().getString("from"));
-		matcher.putString("to", message.body().getString("to"));
-
 		JsonObject option = new JsonObject();
 		option.putString("action", "delete");
 		option.putString("collection", relationCollection);
-		option.putObject("matcher", matcher);
+		option.putObject("matcher", message.body().getObject("matcher"));
 
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override
@@ -88,7 +84,7 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 		});
 	}
 
-	private void getMyFollowingList(final Message<JsonObject> message) {
+	private void getMyFollowerList(final Message<JsonObject> message) {
 		JsonObject option = new JsonObject();
 		option.putString("action", "retrieve");
 		option.putString("collection", relationCollection);
@@ -113,7 +109,7 @@ public class StoryVerticle extends Verticle implements Handler<Message<JsonObjec
 		option.putString("action", "retrieve");
 		option.putString("collection", relationCollection);
 		option.putObject("matcher", new JsonObject().putString("from", message.body().getString("from")));
-
+		System.out.println(option.encode());
 		eb.send(objAddress, option, new Handler<Message<JsonObject>>() {
 			@Override
 			public void handle(Message<JsonObject> result) {
