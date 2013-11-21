@@ -16,7 +16,7 @@ currently version is 1
 
 ##Creating Objects##
 
-To create a new object on Parse, send a POST request to the class URL containing the contents of the object. For example, to create the object described above:
+To create a new object on SSKY, send a POST request to the class URL containing the contents of the object. For example, to create the object described above:
 
     curl -X POST \
     -H "_JavaScriptKey: DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx" \
@@ -88,7 +88,7 @@ The response body is a JSON object containing just an updatedAt field with the t
 
 ##Counters##
 
-To help with storing counter-type data, Parse provides the ability to atomically increment (or decrement) any number field. So, we can increment the score field like so:
+To help with storing counter-type data, SSKY provides the ability to atomically increment (or decrement) any number field. So, we can increment the score field like so:
 
 	curl -X PUT \
     -H "_JavaScriptKey: DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx");
@@ -115,7 +115,7 @@ Each method takes an array of objects to add or remove in the "objects" key. For
 
 ##Relations##
 
-In order to update Relation types, Parse provides special operators to atomically add and remove objects to a relation. So, we can add an object to a relation like so:
+In order to update Relation types, SSKY provides special operators to atomically add and remove objects to a relation. So, we can add an object to a relation like so:
 
 	curl -X PUT \
   	-H "Content-Type: application/json" \
@@ -134,7 +134,7 @@ To remove an object from a relation, you can do:
 
 ##Deleting Objects##
 
-To delete an object from the Parse Cloud, send a DELETE request to its object URL. For example:
+To delete an object from the SSKY Cloud, send a DELETE request to its object URL. For example:
 
 	curl -X DELETE \
     -H "_JavaScriptKey: DltKiTzyzqJ7VJUzGrtfrsKbQoDBX0aU3K3xUHx");
